@@ -1,0 +1,50 @@
+{
+  "name": "shasync",
+  "version": "0.0.1",
+  "description": "Sync static app files with a storage provider and CDN",
+  "main": "dist/main.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wilsonzlin/shasync.git"
+  },
+  "keywords": [
+    "shasync",
+    "sync",
+    "object",
+    "storage",
+    "cloud",
+    "s3",
+    "aws",
+    "cloudflare",
+    "cloudfront"
+  ],
+  "author": {
+    "email": "contact@wilsonl.in",
+    "name": "Wilson Lin",
+    "url": "https://wilsonl.in/"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wilsonzlin/shasync/issues"
+  },
+  "homepage": "https://github.com/wilsonzlin/shasync#readme",
+  "dependencies": {
+    "aws-sdk": "^2.282.1",
+    "cr-hex": "0.0.1",
+    "fs-jogger": "0.0.1",
+    "mime-types": "^2.1.19",
+    "minimist": "^1.2.0",
+    "moment": "^2.22.2",
+    "read": "^1.0.7",
+    "recursive-readdir-sync": "^1.0.6",
+    "request": "^2.87.0"
+  },
+  "devDependencies": {
+    "@types/aws-sdk": "^2.7.0",
+    "@types/mime-types": "^2.1.0",
+    "@types/minimist": "^1.2.0",
+    "@types/node": "^10.5.4",
+    "@types/read": "0.0.28",
+    "@types/request": "^2.47.1"
+  }
+}
