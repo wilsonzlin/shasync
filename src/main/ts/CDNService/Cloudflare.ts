@@ -1,5 +1,5 @@
-import CDNService from "./CDNService";
 import request = require("request");
+import {CDNService} from "./CDNService";
 
 export interface ICloudflareSettings {
   zoneID: string;
@@ -14,7 +14,7 @@ function assertValidKey (key: any): void {
   }
 }
 
-export default class extends CDNService {
+export class Cloudflare extends CDNService {
   private readonly zoneID: string;
   private readonly site: string;
   private readonly email: string;
@@ -26,6 +26,23 @@ export default class extends CDNService {
     this.site = settings.site;
     this.email = settings.email;
     this.globalAPIKey = settings.globalAPIKey;
+  }
+
+  invalidate (...keys: string[]): Promise<void> {
+    keys.forEach(key => assertValidKey(key));
+
+    return new Promise((resolve, reject) => {
+      let batches = [];
+      do {
+        batches.push(keys.splice(0, 500));
+      } while (keys.length);
+
+      Promise.all(batches.map(b => this._invalidateBatch(b)))
+        .then(() => {
+          resolve();
+        })
+        .catch(reject);
+    });
   }
 
   private _invalidateBatch (keys: string[]): Promise<void> {
@@ -65,23 +82,6 @@ export default class extends CDNService {
           reject(new Error("Cloudflare API call not successful"));
         }
       });
-    });
-  }
-
-  invalidate (...keys: string[]): Promise<void> {
-    keys.forEach(key => assertValidKey(key));
-
-    return new Promise((resolve, reject) => {
-      let batches = [];
-      do {
-        batches.push(keys.splice(0, 500));
-      } while (keys.length);
-
-      Promise.all(batches.map(b => this._invalidateBatch(b)))
-        .then(() => {
-          resolve();
-        })
-        .catch(reject);
     });
   }
 }

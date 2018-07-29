@@ -1,10 +1,11 @@
-import StorageService, {
+import {
   IListArgs,
   IObject,
   IStorageServiceCopyArgs,
   IStorageServiceGetMetadataResult,
   IStorageServiceSetMetadataArgs,
-  IUploadArgs
+  IUploadArgs,
+  StorageService
 } from "./StorageService";
 import AWS from "aws-sdk";
 import ReadableStream = NodeJS.ReadableStream;
@@ -22,7 +23,7 @@ function assertValidKey (key: any): void {
   }
 }
 
-export default class extends StorageService {
+export class S3 extends StorageService {
   private readonly s3: AWS.S3;
   private readonly accessKeyID: string;
   private readonly secretAccessKey: string;

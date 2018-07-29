@@ -1,14 +1,14 @@
 import {FilesList, HASH_TYPE, REMOTE_FILE_METADATA_KEY_HASH} from "./__shared__";
 import StorageService from "../StorageService/StorageService";
 import * as Path from "path";
-import hashStream from "../Utils/hashStream";
+import {hashStream} from "../Utils/hashStream";
 
 export interface IGetRemoteHashesArgs {
   prefix: string;
   storageService: StorageService;
 }
 
-export default async (
+export const getRemoteHashes = async (
   {
     prefix,
     storageService,
@@ -71,4 +71,4 @@ export default async (
   });
 
   return remoteFileHashes;
-}
+};

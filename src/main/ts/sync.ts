@@ -1,12 +1,12 @@
-import StorageService from "./StorageService/StorageService";
-import CDNService from "./CDNService/CDNService";
 import * as Path from "path";
 import {FilesList, normaliseFilePath, REMOTE_FILE_METADATA_KEY_HASH} from "./Sync/__shared__";
-import getLocalHashes from "./Sync/getLocalHashes";
-import getRemoteHashes from "./Sync/getRemoteHashes";
-import ask from "./Utils/ask";
 import {contentType as ContentType} from "mime-types";
 import * as fs from "fs";
+import {StorageService} from "./StorageService/StorageService";
+import {CDNService} from "./CDNService/CDNService";
+import {getLocalHashes} from "./Sync/getLocalHashes";
+import {getRemoteHashes} from "./Sync/getRemoteHashes";
+import {ask} from "./Utils/ask";
 
 export interface ISyncSettings {
   directory: string;
@@ -24,7 +24,7 @@ function assertValidPrefix (prefix: string): void {
   }
 }
 
-export default async (
+export const sync = async (
   {
     directory,
     prefix = "",

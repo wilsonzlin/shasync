@@ -1,6 +1,6 @@
-import CDNService from "./CDNService";
 import {cryptoRandomHex} from "cr-hex/dist/cryptoRandomHex";
 import AWS from "aws-sdk";
+import {CDNService} from "./CDNService";
 import moment = require("moment");
 
 export interface ICloudFrontSettings {
@@ -15,7 +15,7 @@ function assertValidKey (key: any): void {
   }
 }
 
-export default class extends CDNService {
+export class CloudFront extends CDNService {
   private readonly cf: AWS.CloudFront;
   private readonly accessKeyID: string;
   private readonly secretAccessKey: string;

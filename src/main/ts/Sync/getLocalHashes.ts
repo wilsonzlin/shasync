@@ -1,14 +1,14 @@
 import {HASH_TYPE, normaliseFilePath} from "./__shared__";
 import * as Path from "path";
-import hashStream from "../Utils/hashStream";
 import {jogList} from "fs-jogger/dist/jog/jogList";
 import * as fs from "fs";
+import {hashStream} from "../Utils/hashStream";
 
 export interface IGetLocalHashesArgs {
   directory: string;
 }
 
-export default async (
+export const getLocalHashes = async (
   {
     directory,
   }: IGetLocalHashesArgs
@@ -33,4 +33,4 @@ export default async (
   });
 
   return hashMap;
-}
+};

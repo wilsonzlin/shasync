@@ -1,6 +1,6 @@
 import read from "read";
 
-export default (question: string): Promise<string> => {
+export const ask = (question: string): Promise<string> => {
   return new Promise((resolve, reject) => {
     read({
       prompt: question,

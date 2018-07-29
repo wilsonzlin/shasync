@@ -39,7 +39,7 @@ export interface IUploadArgs {
   metadata: IObjectMetadata;
 }
 
-export default abstract class {
+export abstract class StorageService {
   public abstract copy (args: IStorageServiceCopyArgs): Promise<void>;
 
   public abstract getMetadata (key: string): Promise<IStorageServiceGetMetadataResult>;
