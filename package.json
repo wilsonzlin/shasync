@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "description": "Sync files with a storage provider and CDN",
   "main": "dist/main.js",
+  "files": [
+    "dist/**"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wilsonzlin/shasync.git"
