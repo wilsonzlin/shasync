@@ -3,6 +3,7 @@ import StorageService, {
   IObject,
   IStorageServiceCopyArgs,
   IStorageServiceGetMetadataResult,
+  IStorageServiceSetMetadataArgs,
   IUploadArgs
 } from "./StorageService";
 import AWS from "aws-sdk";
@@ -90,6 +91,33 @@ export default class extends StorageService {
           key: key,
           metadata: data.Metadata || {},
         });
+      });
+    });
+  }
+
+  setMetadata ({key, metadata}: IStorageServiceSetMetadataArgs): Promise<void> {
+    assertValidKey(key);
+
+    return new Promise((resolve, reject) => {
+      this.s3.headObject({
+        Bucket: this.bucket,
+        Key: key,
+      }, (err, data) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+
+        let contentType = data.ContentType;
+
+        this.copy({
+          fromKey: key,
+          toKey: key,
+          contentType: contentType,
+          metadata: metadata,
+        })
+          .then(() => void resolve())
+          .catch(reject);
       });
     });
   }

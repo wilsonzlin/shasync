@@ -16,6 +16,11 @@ export interface IStorageServiceGetMetadataResult {
   metadata: IObjectMetadata;
 }
 
+export interface IStorageServiceSetMetadataArgs {
+  key: string;
+  metadata: IObjectMetadata;
+}
+
 export interface IListArgs {
   prefix: string;
   maximumKeys?: number;
@@ -38,6 +43,8 @@ export default abstract class {
   public abstract copy (args: IStorageServiceCopyArgs): Promise<void>;
 
   public abstract getMetadata (key: string): Promise<IStorageServiceGetMetadataResult>;
+
+  public abstract setMetadata (args: IStorageServiceSetMetadataArgs): Promise<void>;
 
   public abstract list (args: IListArgs): Promise<IObject[]>;
 
