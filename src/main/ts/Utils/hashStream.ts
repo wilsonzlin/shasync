@@ -1,12 +1,7 @@
 import * as Crypto from "crypto";
 import ReadableStream = NodeJS.ReadableStream;
 
-export interface IStreamHash {
-  hash: string;
-  metadata: any;
-}
-
-export default (hashType: string, stream: ReadableStream, metadata: any): Promise<IStreamHash> => {
+export default (hashType: string, stream: ReadableStream): Promise<string> => {
   return new Promise((resolve, reject) => {
     let hash = Crypto.createHash(hashType);
     let sha512 = "";
@@ -19,7 +14,7 @@ export default (hashType: string, stream: ReadableStream, metadata: any): Promis
     });
 
     hash.on('finish', () => {
-      resolve({ hash: sha512, metadata: metadata });
+      resolve(sha512);
     });
 
     hash.on('error', err => {
