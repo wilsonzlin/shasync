@@ -22,7 +22,7 @@ export interface IStorageServiceSetMetadataArgs {
 }
 
 export interface IListArgs {
-  prefix: string;
+  prefix?: string;
   maximumKeys?: number;
 }
 
