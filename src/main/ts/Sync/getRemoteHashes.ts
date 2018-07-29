@@ -1,7 +1,7 @@
 import {FilesList, HASH_TYPE, REMOTE_FILE_METADATA_KEY_HASH} from "./__shared__";
-import StorageService from "../StorageService/StorageService";
 import * as Path from "path";
 import {hashStream} from "../Utils/hashStream";
+import {StorageService} from "../StorageService/StorageService";
 
 export interface IGetRemoteHashesArgs {
   prefix: string;
