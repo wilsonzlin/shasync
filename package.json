@@ -10,6 +10,11 @@
     "type": "git",
     "url": "git+https://github.com/wilsonzlin/shasync.git"
   },
+  "scripts": {
+    "build": "npm run clean && tsc",
+    "prepublishOnly": "npm run build",
+    "clean": "rm -rf dist"
+  },
   "keywords": [
     "shasync",
     "sync",
