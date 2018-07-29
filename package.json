@@ -1,7 +1,7 @@
 {
   "name": "shasync",
   "version": "0.0.1",
-  "description": "Sync static app files with a storage provider and CDN",
+  "description": "Sync files with a storage provider and CDN",
   "main": "dist/main.js",
   "repository": {
     "type": "git",
