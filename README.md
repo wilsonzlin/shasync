@@ -18,7 +18,7 @@ Syncronise local files with a cloud file storage provider. Can also invalidate c
 |Package manager|Command|
 |---|---|
 |npm|`npm i -g shasync`|
-|yarn|`yarn glboal add shasync`|
+|yarn|`yarn global add shasync`|
 
 #### Usage
 
@@ -57,7 +57,7 @@ shasync.sync({
     email: "me@gmail.com",
     globalAPIKey: "cfglobalapikey",
   }),
-  
+
   directoryIndex: "index.html" || undefined,
 });
 ```
