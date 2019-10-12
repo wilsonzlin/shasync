@@ -1,12 +1,12 @@
 import {
   IListArgs,
   IObject,
+  IStorageService,
   IStorageServiceCopyArgs,
   IStorageServiceGetMetadataResult,
   IStorageServiceSetMetadataArgs,
-  IUploadArgs,
-  StorageService
-} from "./StorageService";
+  IUploadArgs
+} from "./IStorageService";
 import AWS from "aws-sdk";
 import ReadableStream = NodeJS.ReadableStream;
 
@@ -17,24 +17,17 @@ export interface IS3Settings {
   bucket: string;
 }
 
-function assertValidKey (key: any): void {
+const assertValidKey = (key: any): void => {
   if (typeof key != "string" || key[0] == "/") {
     throw new SyntaxError(`S3 keys must be a string and cannot start with a forward slash (got "${key}")`);
   }
-}
+};
 
-export class S3 extends StorageService {
+export class S3 implements IStorageService {
   private readonly s3: AWS.S3;
-  private readonly accessKeyID: string;
-  private readonly secretAccessKey: string;
-  private readonly region: string;
   private readonly bucket: string;
 
   constructor (settings: IS3Settings) {
-    super();
-    this.accessKeyID = settings.accessKeyID;
-    this.secretAccessKey = settings.secretAccessKey;
-    this.region = settings.region;
     this.bucket = settings.bucket;
     this.s3 = new AWS.S3({
       accessKeyId: settings.accessKeyID,
@@ -43,7 +36,7 @@ export class S3 extends StorageService {
     });
   }
 
-  copy (
+  async copy (
     {
       fromKey,
       toKey,
@@ -54,149 +47,94 @@ export class S3 extends StorageService {
     assertValidKey(fromKey);
     assertValidKey(toKey);
 
-    return new Promise((resolve, reject) => {
-      this.s3.copyObject({
-        Bucket: this.bucket,
-        CopySource: this.bucket + "/" + fromKey,
-        Key: toKey,
-        ContentType: contentType,
-        Metadata: metadata,
-        MetadataDirective: "REPLACE",
-      }, err => {
-        if (err) {
-          reject(err);
-          return;
-        }
-
-        console.log(`Copied ${fromKey} to ${toKey}`);
-
-        resolve();
-      });
-    });
+    await this.s3.copyObject({
+      Bucket: this.bucket,
+      CopySource: this.bucket + "/" + fromKey,
+      Key: toKey,
+      ContentType: contentType,
+      Metadata: metadata,
+      MetadataDirective: "REPLACE",
+    }).promise();
   }
 
-  getMetadata (key: string): Promise<IStorageServiceGetMetadataResult> {
+  async getMetadata (key: string): Promise<IStorageServiceGetMetadataResult> {
     assertValidKey(key);
 
-    return new Promise((resolve, reject) => {
-      this.s3.headObject({
-        Bucket: this.bucket,
-        Key: key,
-      }, (err, data) => {
-        if (err) {
-          reject(err);
-          return;
-        }
+    const data = await this.s3.headObject({
+      Bucket: this.bucket,
+      Key: key,
+    }).promise();
 
-        resolve({
-          key: key,
-          metadata: data.Metadata || {},
-        });
-      });
-    });
+    return {
+      key: key,
+      metadata: data.Metadata || {},
+    };
   }
 
-  setMetadata ({key, metadata}: IStorageServiceSetMetadataArgs): Promise<void> {
+  async setMetadata ({key, metadata}: IStorageServiceSetMetadataArgs): Promise<void> {
     assertValidKey(key);
 
-    return new Promise((resolve, reject) => {
-      this.s3.headObject({
-        Bucket: this.bucket,
-        Key: key,
-      }, (err, data) => {
-        if (err) {
-          reject(err);
-          return;
-        }
+    const data = await this.s3.headObject({
+      Bucket: this.bucket,
+      Key: key,
+    }).promise();
 
-        let contentType = data.ContentType;
-
-        this.copy({
-          fromKey: key,
-          toKey: key,
-          contentType: contentType,
-          metadata: metadata,
-        })
-          .then(() => void resolve())
-          .catch(reject);
-      });
+    await this.copy({
+      fromKey: key,
+      toKey: key,
+      contentType: data.ContentType,
+      metadata: metadata,
     });
   }
 
-  list ({prefix, maximumKeys = 100000}: IListArgs): Promise<IObject[]> {
+  async list ({prefix, maximumKeys = 100000}: IListArgs): Promise<IObject[]> {
     assertValidKey(prefix);
 
-    return new Promise((resolve, reject) => {
-      this.s3.listObjectsV2({
-        Bucket: this.bucket,
-        Prefix: prefix,
-        MaxKeys: maximumKeys,
-      }, (err, data) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(data.Contents!.map(o => ({
-            key: o.Key!,
-            lastModified: o.LastModified!,
-            size: o.Size!,
-          })));
-        }
-      });
-    });
+    const data = await this.s3.listObjectsV2({
+      Bucket: this.bucket,
+      Prefix: prefix,
+      MaxKeys: maximumKeys,
+    }).promise();
+
+    return data.Contents!.map(o => ({
+      key: o.Key!,
+      lastModified: o.LastModified!,
+      size: o.Size!,
+    }));
   }
 
-  delete (...keys: string[]): Promise<void> {
+  async delete (...keys: string[]): Promise<void> {
     keys.forEach(key => assertValidKey(key));
 
-    return new Promise((resolve, reject) => {
-      this.s3.deleteObjects({
-        Bucket: this.bucket,
-        Delete: {
-          Objects: keys.map(k => ({Key: k})),
-        },
-      }, (err, data) => {
-        if (err) {
-          reject(err);
-          return;
-        }
+    const data = await this.s3.deleteObjects({
+      Bucket: this.bucket,
+      Delete: {
+        Objects: keys.map(k => ({Key: k})),
+      },
+    }).promise();
 
-        data.Deleted!.forEach(obj => {
-          console.log(`Deleted ${obj.Key}`);
-        });
-
-        data.Errors!.forEach(obj => {
-          console.log(`Failed to delete ${obj.Key}: ${obj.Message}`);
-        });
-
-        if (data.Errors!.length) {
-          reject(Error("Some files failed to delete"));
-        } else {
-          resolve();
-        }
-      });
+    data.Deleted!.forEach(obj => {
+      console.log(`Deleted ${obj.Key}`);
     });
+
+    data.Errors!.forEach(obj => {
+      console.log(`Failed to delete ${obj.Key}: ${obj.Message}`);
+    });
+
+    if (data.Errors!.length) {
+      throw new Error("Some files failed to delete");
+    }
   }
 
-  upload ({key, data, contentType, metadata}: IUploadArgs): Promise<void> {
+  async upload ({key, data, contentType, metadata}: IUploadArgs): Promise<void> {
     assertValidKey(key);
 
-    return new Promise((resolve, reject) => {
-      this.s3.upload({
-        Bucket: this.bucket,
-        Key: key,
-        Body: data,
-        ContentType: contentType,
-        Metadata: metadata,
-      }, err => {
-        if (err) {
-          reject(err);
-          return;
-        }
-
-        console.log(`Uploaded ${key}`);
-
-        resolve();
-      });
+    await this.s3.upload({
+      Bucket: this.bucket,
+      Key: key,
+      Body: data,
+      ContentType: contentType,
+      Metadata: metadata,
     });
   }
 

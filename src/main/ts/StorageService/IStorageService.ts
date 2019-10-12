@@ -39,18 +39,18 @@ export interface IUploadArgs {
   metadata: IObjectMetadata;
 }
 
-export abstract class StorageService {
-  public abstract copy (args: IStorageServiceCopyArgs): Promise<void>;
+export interface IStorageService {
+  copy (args: IStorageServiceCopyArgs): Promise<void>;
 
-  public abstract getMetadata (key: string): Promise<IStorageServiceGetMetadataResult>;
+  getMetadata (key: string): Promise<IStorageServiceGetMetadataResult>;
 
-  public abstract setMetadata (args: IStorageServiceSetMetadataArgs): Promise<void>;
+  setMetadata (args: IStorageServiceSetMetadataArgs): Promise<void>;
 
-  public abstract list (args: IListArgs): Promise<IObject[]>;
+  list (args: IListArgs): Promise<IObject[]>;
 
-  public abstract delete (...keys: string[]): Promise<void>;
+  delete (...keys: string[]): Promise<void>;
 
-  public abstract upload (args: IUploadArgs): Promise<void>;
+  upload (args: IUploadArgs): Promise<void>;
 
-  public abstract stream (key: string): ReadableStream;
+  stream (key: string): ReadableStream;
 }

@@ -1,5 +1,5 @@
 import request = require("request");
-import {CDNService} from "./CDNService";
+import {ICDNService} from "./ICDNService";
 
 export interface ICloudflareSettings {
   zoneID: string;
@@ -8,44 +8,37 @@ export interface ICloudflareSettings {
   globalAPIKey: string;
 }
 
-function assertValidKey (key: any): void {
+const assertValidKey = (key: any): void => {
   if (typeof key != "string" || key[0] != "/") {
     throw new SyntaxError(`Cloudflare keys must be a string and start with a forward slash (got "${key}")`);
   }
-}
+};
 
-export class Cloudflare extends CDNService {
+export class Cloudflare implements ICDNService {
   private readonly zoneID: string;
   private readonly site: string;
   private readonly email: string;
   private readonly globalAPIKey: string;
 
   constructor (settings: ICloudflareSettings) {
-    super();
     this.zoneID = settings.zoneID;
     this.site = settings.site;
     this.email = settings.email;
     this.globalAPIKey = settings.globalAPIKey;
   }
 
-  invalidate (...keys: string[]): Promise<void> {
+  async invalidate (...keys: string[]): Promise<void> {
     keys.forEach(key => assertValidKey(key));
 
-    return new Promise((resolve, reject) => {
-      let batches = [];
-      do {
-        batches.push(keys.splice(0, 500));
-      } while (keys.length);
+    let batches = [];
+    do {
+      batches.push(keys.splice(0, 500));
+    } while (keys.length);
 
-      Promise.all(batches.map(b => this._invalidateBatch(b)))
-        .then(() => {
-          resolve();
-        })
-        .catch(reject);
-    });
+    await Promise.all(batches.map(b => this._invalidateBatch(b)));
   }
 
-  private _invalidateBatch (keys: string[]): Promise<void> {
+  private async _invalidateBatch (keys: string[]): Promise<void> {
     return new Promise((resolve, reject) => {
       request({
         method: "DELETE",
