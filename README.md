@@ -5,9 +5,17 @@ Syncronise local files with a cloud file storage provider. Can also invalidate c
 ## Features
 
 - Ensure local and remote states match using SHA-512.
-- Can also invalidate directories alongside directory index files (e.g. `/app` with `/app/index.html`).
+- Invalidates directory index files alongside directories (e.g. `/app/index.html` with `/app`).
 - Currently supports S3 as remote file storage service; B2 support coming soon.
 - Currently supports CloudFront and Cloudflare as CDN services.
+
+## How it works
+
+All files stored in the cloud are enumerated to retrieve their SHA-512 hashes stored in object metadata. If the hash doesn't exist, the file is downloaded to calculate the hash, and the hash is then saved to object metadata.
+
+All files locally are also enumerated and are hashed using SHA-512.
+
+Files present locally but not in the cloud are uploaded, while files in the cloud but not locally are deleted from cloud. Files that have changed according to hashes are uploaded. Paths to files changed in the cloud (uploaded or removed) are invalidated by the CDN.
 
 ## Usage
 
@@ -22,7 +30,21 @@ Syncronise local files with a cloud file storage provider. Can also invalidate c
 
 #### Usage
 
-Coming soon.
+See the help by running `shasync -h`. As an example:
+
+```bash
+export AWS_ACCESS_KEY_ID=abc
+export AWS_SECRET_ACCESS_KEY=abc
+export AWS_REGION=us-east-1
+export AWS_DISTRIBUTION=abc
+shasync \
+  --directory /path/to/local/folder \
+  --prefix remote/storage/prefix \
+  --storage aws \
+  --bucket mybucket \
+  --cdn aws \
+  --index index.html
+``` 
 
 ### API
 
@@ -37,27 +59,37 @@ For project use:
 
 #### Usage
 
-Example:
+sacli comes with TypeScript typings. As an example:
 
 ```typescript
 import * as shasync from 'shasync';
 
-shasync.sync({
-  directory: '/path/to/local/dir',
-  prefix: 'remote/dir/prefix' || undefined,
-  storageService: new shasync.S3({
-    accessKeyID: 'AWSS3ACCESSKEYID',
-    secretAccessKey: 'secretaccesskey',
-    region: 'us-west-1',
-    bucket: 'my-s3-bucket',
-  }),
-  CDNService: new shasync.Cloudflare({
-    zoneID: 'CFSITEZONEID',
-    site: 'mysite.co',
-    email: 'me@gmail.com',
-    globalAPIKey: 'cfglobalapikey',
-  }),
+const storage = new shasync.S3({
+  accessKeyID: 'AWSS3ACCESSKEYID',
+  secretAccessKey: 'secretaccesskey',
+  region: 'us-west-1',
+  bucket: 'my-s3-bucket',
+});
 
-  directoryIndex: 'index.html' || undefined,
+const cdn = new shasync.Cloudflare({
+  zoneID: 'CFSITEZONEID',
+  site: 'mysite.co',
+  email: 'me@gmail.com',
+  globalAPIKey: 'cfglobalapikey',
+});
+
+const diff = await shasync.diff({
+  directory: '/path/to/local/dir',
+  prefix: 'remote/dir/prefix',
+  storageService: storage,
+  directoryIndex: 'index.html',
+});
+
+await shasync.sync({
+  diff,
+  directory: '/path/to/local/dir',
+  prefix: 'remote/dir/prefix',
+  storageService: storage,
+  CDNService: cdn,
 });
 ```
