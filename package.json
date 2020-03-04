@@ -1,6 +1,6 @@
 {
   "name": "shasync",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "Sync files with a storage provider and CDN",
   "main": "dist/main.js",
   "files": [
