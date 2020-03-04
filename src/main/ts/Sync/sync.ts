@@ -1,11 +1,11 @@
-import * as Path from "path";
-import { REMOTE_FILE_METADATA_KEY_HASH } from "./common";
-import { contentType as ContentType } from "mime-types";
-import * as fs from "fs";
-import { IStorageService } from "../StorageService/IStorageService";
-import { ICDNService } from "../CDNService/ICDNService";
-import { ask } from "../Utils/ask";
-import { IDiffResult } from "./diff";
+import * as fs from 'fs';
+import {contentType as ContentType} from 'mime-types';
+import * as path from 'path';
+import {ICDNService} from '../CDNService/ICDNService';
+import {IStorageService} from '../StorageService/IStorageService';
+import {ask} from '../Utils/ask';
+import {REMOTE_FILE_METADATA_KEY_HASH} from './common';
+import {IDiffResult} from './diff';
 
 export interface ISyncSettings {
   directory: string;
@@ -15,62 +15,60 @@ export interface ISyncSettings {
   diff: IDiffResult;
 }
 
-export const sync = async (
-  {
-    directory,
-    prefix = "",
-    storageService,
-    CDNService,
-    diff,
-  }: ISyncSettings
-) => {
-  const { extraRemote, missingRemote, differentRemote, changedPaths, localHashes } = diff;
+export const sync = async ({
+  directory,
+  prefix = '',
+  storageService,
+  CDNService,
+  diff,
+}: ISyncSettings) => {
+  const {extraRemote, missingRemote, differentRemote, changedPaths, localHashes} = diff;
 
   if (!extraRemote.length) {
-    console.log("\nNo extra files");
+    console.log('\nNo extra files');
   } else {
     console.log(`\nExtra files found remotely to delete (${extraRemote.length}):\n`);
-    console.log(extraRemote.join("\n"));
+    console.log(extraRemote.join('\n'));
   }
 
   if (!missingRemote.length) {
-    console.log("\nNo missing files");
+    console.log('\nNo missing files');
   } else {
     console.log(`\nMissing files not found remotely to upload (${missingRemote.length}):\n`);
-    console.log(missingRemote.join("\n"));
+    console.log(missingRemote.join('\n'));
   }
 
   if (!differentRemote.length) {
-    console.log("\nNo different files");
+    console.log('\nNo different files');
   } else {
     console.log(`\nFiles different remotely to upload (${differentRemote.length}):\n`);
-    console.log(differentRemote.join("\n"));
+    console.log(differentRemote.join('\n'));
   }
 
   if (!extraRemote.length && !missingRemote.length && !differentRemote.length) {
-    console.log("\nNothing to do, sync complete");
+    console.log('\nNothing to do, sync complete');
     // WARNING: Function exists here.
     return;
   }
 
-  let confirm = await ask("\nAre you sure you want to sync? (y) ");
+  const confirm = await ask('\nAre you sure you want to sync? (y) ');
 
-  if (confirm.toLowerCase() !== "y") {
+  if (confirm.toLowerCase() !== 'y') {
     throw new Error(`Sync cancelled by user`);
   }
 
   if (extraRemote.length) {
-    console.log("\n=============== DELETING FILES ===============\n");
+    console.log('\n=============== DELETING FILES ===============\n');
     await storageService.delete(...extraRemote.map(f => `${prefix}/${f}`));
   }
 
   if (missingRemote.length) {
-    console.log("\n=============== UPLOADING FILES ===============\n");
+    console.log('\n=============== UPLOADING FILES ===============\n');
     await Promise.all(missingRemote.concat(differentRemote).map(f => {
       return storageService.upload({
         key: `${prefix}/${f}`,
-        data: fs.createReadStream(Path.join(directory, f)),
-        contentType: ContentType(Path.extname(f)) || "application/octet-stream",
+        data: fs.createReadStream(path.join(directory, f)),
+        contentType: ContentType(path.extname(f)) || 'application/octet-stream',
         metadata: {
           [REMOTE_FILE_METADATA_KEY_HASH]: localHashes.get(f)!,
         },
@@ -79,7 +77,7 @@ export const sync = async (
   }
 
   if (changedPaths.length) {
-    console.log("\n============== INVALIDATING FILES =============\n");
+    console.log('\n============== INVALIDATING FILES =============\n');
     await CDNService.invalidate(...changedPaths);
   }
 };

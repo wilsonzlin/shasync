@@ -1,3 +1,4 @@
+import AWS from 'aws-sdk';
 import {
   IListArgs,
   IObject,
@@ -5,9 +6,8 @@ import {
   IStorageServiceCopyArgs,
   IStorageServiceGetMetadataResult,
   IStorageServiceSetMetadataArgs,
-  IUploadArgs
-} from "./IStorageService";
-import AWS from "aws-sdk";
+  IUploadArgs,
+} from './IStorageService';
 import ReadableStream = NodeJS.ReadableStream;
 
 export interface IS3Settings {
@@ -18,7 +18,7 @@ export interface IS3Settings {
 }
 
 const assertValidKey = (key: any): void => {
-  if (typeof key != "string" || key[0] == "/") {
+  if (typeof key != 'string' || key[0] == '/') {
     throw new SyntaxError(`S3 keys must be a string and cannot start with a forward slash (got "${key}")`);
   }
 };
@@ -42,18 +42,18 @@ export class S3 implements IStorageService {
       toKey,
       contentType,
       metadata,
-    }: IStorageServiceCopyArgs
+    }: IStorageServiceCopyArgs,
   ): Promise<void> {
     assertValidKey(fromKey);
     assertValidKey(toKey);
 
     await this.s3.copyObject({
       Bucket: this.bucket,
-      CopySource: this.bucket + "/" + fromKey,
+      CopySource: this.bucket + '/' + fromKey,
       Key: toKey,
       ContentType: contentType,
       Metadata: metadata,
-      MetadataDirective: "REPLACE",
+      MetadataDirective: 'REPLACE',
     }).promise();
   }
 
@@ -122,7 +122,7 @@ export class S3 implements IStorageService {
     });
 
     if (data.Errors!.length) {
-      throw new Error("Some files failed to delete");
+      throw new Error('Some files failed to delete');
     }
   }
 

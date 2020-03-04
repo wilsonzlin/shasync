@@ -1,7 +1,7 @@
-import {cryptoRandomHex} from "crng";
-import AWS from "aws-sdk";
-import {ICDNService} from "./ICDNService";
-import moment = require("moment");
+import AWS from 'aws-sdk';
+import {cryptoRandomHex} from 'crng';
+import {ICDNService} from './ICDNService';
+import moment = require('moment');
 
 export interface ICloudFrontSettings {
   accessKeyID: string;
@@ -10,7 +10,7 @@ export interface ICloudFrontSettings {
 }
 
 const assertValidKey = (key: any): void => {
-  if (typeof key != "string" || key[0] != "/") {
+  if (typeof key != 'string' || key[0] != '/') {
     throw new SyntaxError(`CloudFront keys must be a string and start with a forward slash (got "${key}")`);
   }
 };

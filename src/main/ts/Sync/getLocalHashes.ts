@@ -1,36 +1,19 @@
-import {HASH_TYPE, normaliseFilePath} from "./common";
-import * as Path from "path";
-import {jogList} from "fs-jogger/dist/jog/jogList";
-import * as fs from "fs";
-import {hashStream} from "../Utils/hashStream";
+import * as fs from 'fs';
+import {jogList} from 'fs-jogger';
+import * as path from 'path';
+import {hashStream} from '../Utils/hashStream';
+import {HASH_TYPE, normaliseFilePath} from './common';
 
 export interface IGetLocalHashesArgs {
   directory: string;
 }
 
-export const getLocalHashes = async (
-  {
-    directory,
-  }: IGetLocalHashesArgs
-): Promise<Map<string, string>> => {
-  let files = await jogList({dir: directory});
+export const getLocalHashes = async ({
+  directory,
+}: IGetLocalHashesArgs): Promise<Map<string, string>> => {
+  const files = await jogList({dir: directory});
 
-  let hashes = await Promise.all(
-    files.map(f =>
-      hashStream(
-        HASH_TYPE,
-        fs.createReadStream(
-          Path.join(directory, f)
-        )
-      )
-    )
-  );
+  const hashes = await Promise.all(files.map(f => hashStream(HASH_TYPE, fs.createReadStream(path.join(directory, f)))));
 
-  let hashMap: Map<string, string> = new Map();
-
-  files.forEach((f, i) => {
-    hashMap.set(normaliseFilePath(f), hashes[i]);
-  });
-
-  return hashMap;
+  return new Map(files.map((f, i) => [normaliseFilePath(f), hashes[i]]));
 };

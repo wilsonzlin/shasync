@@ -1,5 +1,5 @@
-import request = require("request");
-import {ICDNService} from "./ICDNService";
+import request = require('request');
+import {ICDNService} from './ICDNService';
 
 export interface ICloudflareSettings {
   zoneID: string;
@@ -9,7 +9,7 @@ export interface ICloudflareSettings {
 }
 
 const assertValidKey = (key: any): void => {
-  if (typeof key != "string" || key[0] != "/") {
+  if (typeof key != 'string' || key[0] != '/') {
     throw new SyntaxError(`Cloudflare keys must be a string and start with a forward slash (got "${key}")`);
   }
 };
@@ -41,11 +41,11 @@ export class Cloudflare implements ICDNService {
   private async _invalidateBatch (keys: string[]): Promise<void> {
     return new Promise((resolve, reject) => {
       request({
-        method: "DELETE",
+        method: 'DELETE',
         url: `https://api.cloudflare.com/client/v4/zones/${this.zoneID}/purge_cache`,
         headers: {
-          "X-Auth-Email": this.email,
-          "X-Auth-Key": this.globalAPIKey,
+          'X-Auth-Email': this.email,
+          'X-Auth-Key': this.globalAPIKey,
         },
         body: {
           files: keys.map(key => `${this.site}${key}`),
@@ -72,7 +72,7 @@ export class Cloudflare implements ICDNService {
 
           resolve();
         } else {
-          reject(new Error("Cloudflare API call not successful"));
+          reject(new Error('Cloudflare API call not successful'));
         }
       });
     });

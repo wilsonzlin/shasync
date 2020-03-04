@@ -1,4 +1,4 @@
-import read from "read";
+import read from 'read';
 
 export const ask = (question: string): Promise<string> => {
   return new Promise((resolve, reject) => {

@@ -4,10 +4,10 @@ Syncronise local files with a cloud file storage provider. Can also invalidate c
 
 ## Features
 
-- Ensure local and remote state matches using SHA-512.
+- Ensure local and remote states match using SHA-512.
 - Can also invalidate directories alongside directory index files (e.g. `/app` with `/app/index.html`).
 - Currently supports S3 as remote file storage service; B2 support coming soon.
-- Currently supports CloudFront and Cloudflare as CDN service.
+- Currently supports CloudFront and Cloudflare as CDN services.
 
 ## Usage
 
@@ -40,24 +40,24 @@ For project use:
 Example:
 
 ```typescript
-import * as shasync from "shasync";
+import * as shasync from 'shasync';
 
 shasync.sync({
-  directory: "/path/to/local/dir",
-  prefix: "remote/dir/prefix" || undefined,
+  directory: '/path/to/local/dir',
+  prefix: 'remote/dir/prefix' || undefined,
   storageService: new shasync.S3({
-    accessKeyID: "AWSS3ACCESSKEYID",
-    secretAccessKey: "secretaccesskey",
-    region: "us-west-1",
-    bucket: "my-s3-bucket",
+    accessKeyID: 'AWSS3ACCESSKEYID',
+    secretAccessKey: 'secretaccesskey',
+    region: 'us-west-1',
+    bucket: 'my-s3-bucket',
   }),
   CDNService: new shasync.Cloudflare({
-    zoneID: "CFSITEZONEID",
-    site: "mysite.co",
-    email: "me@gmail.com",
-    globalAPIKey: "cfglobalapikey",
+    zoneID: 'CFSITEZONEID',
+    site: 'mysite.co',
+    email: 'me@gmail.com',
+    globalAPIKey: 'cfglobalapikey',
   }),
 
-  directoryIndex: "index.html" || undefined,
+  directoryIndex: 'index.html' || undefined,
 });
 ```

@@ -1,8 +1,8 @@
-import * as Path from "path";
-import { FilesList, normaliseFilePath } from "./common";
-import { getLocalHashes } from "./getLocalHashes";
-import { getRemoteHashes } from "./getRemoteHashes";
-import { IStorageService } from "../main";
+import * as Path from 'path';
+import {IStorageService} from '../main';
+import {FilesList, normaliseFilePath} from './common';
+import {getLocalHashes} from './getLocalHashes';
+import {getRemoteHashes} from './getRemoteHashes';
 
 export interface IDiffSettings {
   directory: string;
@@ -28,18 +28,16 @@ const assertValidPrefix = (prefix: string): void => {
 };
 
 // TODO Refactor: this function is hard to test and awkwardly returns localHashes.
-export const diff = async (
-  {
-    directory,
-    prefix = "",
-    storageService,
-    directoryIndex,
-  }: IDiffSettings
-): Promise<IDiffResult> => {
+export const diff = async ({
+  directory,
+  prefix = '',
+  storageService,
+  directoryIndex,
+}: IDiffSettings): Promise<IDiffResult> => {
   assertValidPrefix(prefix);
 
-  const localHashes = await getLocalHashes({ directory });
-  const remoteHashes = await getRemoteHashes({ prefix, storageService });
+  const localHashes = await getLocalHashes({directory});
+  const remoteHashes = await getRemoteHashes({prefix, storageService});
 
   // Path.relative will convert / to \ on Windows systems, even if base or path has /
   const remoteFiles = new Set([...remoteHashes.keys()].map(k => normaliseFilePath(Path.relative(prefix, k))));
@@ -81,5 +79,5 @@ export const diff = async (
     }
   }
 
-  return { extraRemote, missingRemote, differentRemote, changedPaths, localHashes };
+  return {extraRemote, missingRemote, differentRemote, changedPaths, localHashes};
 };
